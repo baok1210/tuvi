@@ -86,9 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTuHoa(data);
             renderDaiHan(data);
             if (data.thap_nhi_cung) {
-                renderPalaces(data, data.luu_nien);
-            } else if (data.luu_nien) {
-                renderAnnualFlow(data);
+                renderTraditionalBoard(data);
             }
             renderPatterns(data);
             renderAnalysisContent(data, analysisType);
@@ -97,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('hidden');
             resultCard.classList.remove('hidden');
             resultCard.classList.add('animate-fade-in');
-            document.querySelector('.tab-btn[data-tab="overview"]').click();
+            document.querySelector('.tab-btn[data-tab="chart"]').click();
             resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (error) {
@@ -106,6 +104,127 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('hidden');
         }
     });
+
+    const BRANCH_POS = {
+        "Tỵ": { r: 0, c: 0 }, "Ngọ": { r: 0, c: 1 }, "Mùi": { r: 0, c: 2 }, "Thân": { r: 0, c: 3 },
+        "Thìn": { r: 1, c: 0 }, "Dậu": { r: 1, c: 3 },
+        "Mão": { r: 2, c: 0 }, "Tuất": { r: 2, c: 3 },
+        "Dần": { r: 3, c: 0 }, "Sửu": { r: 3, c: 1 }, "Tý": { r: 3, c: 2 }, "Hợi": { r: 3, c: 3 },
+    };
+
+    const DIA_CHI_LIST = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+
+    function tamHopGroup(diaChi) {
+        const idx = DIA_CHI_LIST.indexOf(diaChi);
+        if (idx === -1) return [];
+        // Thân-Tý-Thìn (8-0-4), Dậu-Sửu-Tỵ (9-1-5), Dần-Ngọ-Tuất (2-6-10), Mão-Mùi-Hợi (3-7-11)
+        const groupStarts = [0, 1, 2, 3];
+        for (const gs of groupStarts) {
+            const group = [gs, (gs + 4) % 12, (gs + 8) % 12];
+            if (group.includes(idx)) return group;
+        }
+        return [];
+    }
+
+    function renderTraditionalBoard(data) {
+        if (!data || !data.thap_nhi_cung) return;
+
+        const grid = [[], [], [], []];
+        data.thap_nhi_cung.forEach(cung => {
+            const pos = BRANCH_POS[cung.dia_chi];
+            if (!pos) return;
+            if (!grid[pos.r][pos.c]) grid[pos.r][pos.c] = [];
+            grid[pos.r][pos.c].push(cung);
+        });
+
+        const info = data.thong_tin_co_ban || {};
+        const menh = data.menh_ban || {};
+
+        // Build 4x4 grid HTML
+        let html = '<div class="tv-board">';
+        for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+                if (r >= 1 && r <= 2 && c >= 1 && c <= 2) {
+                    if (r === 1 && c === 1) {
+                        html += `<div class="tv-center">
+                            <div class="tv-center-title">TỬ VI ĐẨU SỐ</div>
+                            <div class="tv-center-info">
+                                <div><span class="tv-ci-label">Dương lịch</span><span class="tv-ci-val">${info.duong_lich || ''}</span></div>
+                                <div><span class="tv-ci-label">Âm lịch</span><span class="tv-ci-val">${info.am_lich || ''}</span></div>
+                                <div><span class="tv-ci-label">Năm</span><span class="tv-ci-val">${info.nam_can_chi || ''}</span></div>
+                                <div><span class="tv-ci-label">Mệnh</span><span class="tv-ci-val">${menh.cung_menh || ''}</span></div>
+                                <div><span class="tv-ci-label">Thân</span><span class="tv-ci-val">${menh.cung_than || ''}</span></div>
+                                <div><span class="tv-ci-label">Cục</span><span class="tv-ci-val">${menh.cuc || ''}</span></div>
+                                <div><span class="tv-ci-label">Giới tính</span><span class="tv-ci-val">${info.gioi_tinh || ''}</span></div>
+                            </div>
+                        </div>`;
+                    }
+                    continue;
+                }
+                const cungs = grid[r][c];
+                const cung = cungs ? cungs[0] : null;
+                if (cung) {
+                    const chinh = cung.chinh_tinh && cung.chinh_tinh.length > 0
+                        ? cung.chinh_tinh.join('<br>') : 'Vô Chính Diệu';
+                    const phu = cung.phu_tinh && cung.phu_tinh.length > 0
+                        ? cung.phu_tinh.join(', ') : null;
+                    const sat = cung.sat_tinh && cung.sat_tinh.length > 0
+                        ? cung.sat_tinh.join(', ') : null;
+                    const dt = cung.dac_tinh && Object.keys(cung.dac_tinh).length > 0
+                        ? Object.entries(cung.dac_tinh).map(([s, v]) => `${s}(${v})`).join(', ') : null;
+                    const thanClass = cung.is_than ? ' tv-cell-than' : '';
+                    const diaChiIdx = DIA_CHI_LIST.indexOf(cung.dia_chi);
+                    html += `<div class="tv-cell${thanClass}" data-idx="${diaChiIdx}">
+                        <div class="tv-cell-header">
+                            <span class="tv-cell-name">${cung.ten}</span>
+                            <span class="tv-cell-branch">${cung.dia_chi}${cung.can_cung ? '(' + cung.can_cung + ')' : ''}</span>
+                            ${cung.is_than ? '<span class="than-badge">Thân</span>' : ''}
+                        </div>
+                        <div class="tv-cell-stars">${chinh}</div>
+                        ${dt ? `<div class="tv-cell-dt">${dt}</div>` : ''}
+                        ${phu ? `<div class="tv-cell-phu">${phu}</div>` : ''}
+                        ${sat ? `<div class="tv-cell-sat">${sat}</div>` : ''}
+                    </div>`;
+                } else {
+                    html += '<div class="tv-cell tv-cell-empty"></div>';
+                }
+            }
+        }
+        html += '</div>';
+        palacesContainer.innerHTML = html;
+
+        // Click interaction for Tam Hop + Xung Chieu
+        const cells = palacesContainer.querySelectorAll('.tv-cell[data-idx]');
+        cells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const idx = parseInt(cell.dataset.idx);
+                const diaChi = DIA_CHI_LIST[idx];
+                const tamHop = tamHopGroup(diaChi);
+                const xungChieu = (idx + 6) % 12;
+                cells.forEach(c => c.classList.remove('tv-cell-highlight', 'tv-cell-xung'));
+                const allIdx = new Set(tamHop);
+                allIdx.add(xungChieu);
+                cells.forEach(c => {
+                    const ci = parseInt(c.dataset.idx);
+                    if (allIdx.has(ci)) {
+                        const dc = DIA_CHI_LIST[ci];
+                        c.classList.add(tamHop.includes(ci) ? 'tv-cell-highlight' : 'tv-cell-xung');
+                    }
+                });
+                // Toggle off if clicking the same cell again
+                if (cell.classList.contains('tv-cell-highlight')) {
+                    const ci = parseInt(cell.dataset.idx);
+                    const sameCellClicked = cell.dataset._last === String(idx);
+                    if (sameCellClicked) {
+                        cells.forEach(c => c.classList.remove('tv-cell-highlight', 'tv-cell-xung'));
+                        cells.forEach(c => delete c.dataset._last);
+                        return;
+                    }
+                    cell.dataset._last = idx;
+                }
+            });
+        });
+    }
 
     function renderBasicInfo(data) {
         if (!data) return;
@@ -153,56 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="tuhoa-value">${v || '-'}</span>
             </div>
         `).join('');
-    }
-
-    function renderPalaces(data, luuNienData) {
-        if (!data || !data.thap_nhi_cung) return;
-        const flow = luuNienData && luuNienData.cac_cung_co_sao ? luuNienData.cac_cung_co_sao : null;
-        const flowMap = {};
-        if (flow) {
-            flow.forEach(f => { flowMap[f.cung] = f.sao_luu; });
-        }
-        palacesContainer.innerHTML = data.thap_nhi_cung.map(cung => {
-            const chinh = cung.chinh_tinh && cung.chinh_tinh.length > 0
-                ? cung.chinh_tinh.join(', ')
-                : 'Vô Chính Diệu';
-            const phu = cung.phu_tinh && cung.phu_tinh.length > 0
-                ? cung.phu_tinh.join(', ')
-                : null;
-            const sat = cung.sat_tinh && cung.sat_tinh.length > 0
-                ? cung.sat_tinh.join(', ')
-                : null;
-            const thanBadge = cung.is_than ? '<span class="than-badge">Thân</span>' : '';
-            const dt = cung.dac_tinh && Object.keys(cung.dac_tinh).length > 0
-                ? Object.entries(cung.dac_tinh).map(([star, val]) => `${star} (${val})`).join(', ')
-                : null;
-            const flowStars = flowMap[cung.ten] || null;
-            return `
-                <div class="palace-card ${cung.is_than ? 'palace-than' : ''}">
-                    <div class="palace-header">
-                        <span class="palace-name">${cung.ten} ${thanBadge}</span>
-                        <span class="palace-earthly">${cung.dia_chi}${cung.can_cung ? ' (' + cung.can_cung + ')' : ''}</span>
-                    </div>
-                    <div class="palace-main-stars">${chinh}</div>
-                    ${dt ? `<div class="palace-section"><span class="palace-section-label">Đặc tính</span><span class="palace-section-val">${dt}</span></div>` : ''}
-                    ${phu ? `<div class="palace-section"><span class="palace-section-label">Phụ tinh</span><span class="palace-section-val">${phu}</span></div>` : ''}
-                    ${sat ? `<div class="palace-section"><span class="palace-section-label">Sát tinh</span><span class="palace-section-val">${sat}</span></div>` : ''}
-                    ${flowStars ? `<div class="palace-section"><span class="palace-section-label">Lưu niên</span><span class="palace-section-val">${flowStars.join(', ')}</span></div>` : ''}
-                </div>
-            `;
-        }).join('');
-    }
-
-    function renderAnnualFlow(data) {
-        if (!data || !data.luu_nien) return;
-        palacesContainer.innerHTML = `
-            <div class="palace-card" style="grid-column: 1 / -1;">
-                <div class="palace-header">
-                    <span class="palace-name">Lưu niên</span>
-                </div>
-                <pre class="code-block" style="margin-top:8px">${JSON.stringify(data.luu_nien, null, 2)}</pre>
-            </div>
-        `;
     }
 
     function renderDaiHan(data) {
