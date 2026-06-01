@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tử Vi Đẩu Số | Phân Tích Toàn Diện</title>
+    <!-- Inter font for premium look -->
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="layout">
+        <header class="header">
+            <h1 class="brand">Tử Vi Đẩu Số</h1>
+            <p class="subtitle">Hệ thống phân tích lá số thông minh</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Input Section -->
+            <div class="card form-card">
+                <form id="chartForm" class="form">
+                    <div class="form-header">
+                        <h3>Nhập thông tin ngày sinh (Dương lịch)</h3>
+                    </div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="year">Năm</label>
+                            <input type="number" id="year" name="year" min="1900" max="2100" value="1996" required>
+                        </div>
+                        <div class="field">
+                            <label for="month">Tháng</label>
+                            <input type="number" id="month" name="month" min="1" max="12" value="11" required>
+                        </div>
+                        <div class="field">
+                            <label for="day">Ngày</label>
+                            <input type="number" id="day" name="day" min="1" max="31" value="15" required>
+                        </div>
+                        <div class="field">
+                            <label for="hour">Giờ (0-23)</label>
+                            <input type="number" id="hour" name="hour" min="0" max="23" value="6" required>
+                        </div>
+                        <div class="field">
+                            <label for="gender">Giới tính</label>
+                                <select id="gender" name="gender" required>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-options">
+                        <div class="field">
+                            <label for="analysisType">Chế độ xem</label>
+                            <select id="analysisType" name="analysisType">
+                                <option value="basic">Lá số cơ bản</option>
+                                <option value="interpret">Luận giải chi tiết</option>
+                                <option value="luunien">Lưu niên (Năm xem)</option>
+                                <option value="ai">Phân tích AI</option>
+                            </select>
+                        </div>
+                        
+                        <div id="luunien-options" class="field hidden">
+                            <label for="targetYear">Năm cần xem</label>
+                            <input type="number" id="targetYear" name="targetYear" min="2020" max="2100" value="2026">
+                        </div>
+
+                        <div id="ai-options" class="field hidden">
+                            <label for="aiModel">Mô hình</label>
+                            <select id="aiModel" name="aiModel">
+                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                <option value="gpt-4o">GPT-4o High</option>
+                                <option value="claude-3-5-sonnet-20241022">Claude 3.5</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">
+                        <span>Lập lá số & Phân tích</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loader" class="loader hidden">
+                <div class="spinner"></div>
+                <p>Đang xử lý dữ liệu...</p>
+            </div>
+
+            <!-- Result Section -->
+            <div id="result" class="result-container hidden">
+                <div class="card result-header-card">
+                    <div class="result-tabs">
+                        <button class="tab-btn active" data-tab="overview">Thông tin chính</button>
+                        <button class="tab-btn" data-tab="chart">Bản đồ lá số</button>
+                        <button class="tab-btn" data-tab="analysis">Luận giải</button>
+                        <button class="tab-btn" data-tab="json">Dữ liệu thô</button>
+                    </div>
+                </div>
+
+                <div class="tab-panes">
+                    <!-- Overview Tab -->
+                    <div id="pane-overview" class="tab-pane active">
+                        <div class="card info-card">
+                            <div class="info-section">
+                                <h4>Thông tin cơ bản</h4>
+                                <div id="basicInfoGrid" class="info-grid"></div>
+                            </div>
+                            <div class="info-section">
+                                <h4>Mệnh Bàn</h4>
+                                <div id="menhBanGrid" class="info-grid"></div>
+                            </div>
+                            <div class="info-section">
+                                <h4>Tứ Hóa</h4>
+                                <div id="tuHoaGrid" class="tuhoa-grid"></div>
+                            </div>
+                            <div class="info-section">
+                                <h4>Cách cục & Kết hợp sao</h4>
+                                <div id="patternsContent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart Tab -->
+                    <div id="pane-chart" class="tab-pane">
+                        <div class="palace-layout">
+                            <!-- This will be populated as a grid or list -->
+                            <div id="palacesContainer" class="palaces-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Tab -->
+                    <div id="pane-analysis" class="tab-pane">
+                        <div id="analysisContent" class="card analysis-card">
+                            <!-- Populated based on analysis type -->
+                        </div>
+                    </div>
+
+                    <!-- JSON Tab -->
+                    <div id="pane-json" class="tab-pane">
+                        <div class="card">
+                            <pre id="jsonOutput" class="code-block"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

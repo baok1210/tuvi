@@ -1,0 +1,16 @@
+{
+  "cung_menh": "Mão",
+  "chinh_tinh": [
+    "Vũ Khúc",
+    "Thất Sát"
+  ],
+  "phu_tinh": [
+    "Thiên Riêu",
+    "Hoa Cái",
+    "Mộc Dục",
+    "Đại Hao",
+    "Tức Thần",
+    "Quán Tác"
+  ],
+  "sat_tinh": []
+}
