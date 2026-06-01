@@ -84,8 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBasicInfo(data);
             renderMenhBan(data);
             renderTuHoa(data);
+            renderDaiHan(data);
             if (data.thap_nhi_cung) {
-                renderPalaces(data);
+                renderPalaces(data, data.luu_nien);
             } else if (data.luu_nien) {
                 renderAnnualFlow(data);
             }
@@ -154,8 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    function renderPalaces(data) {
+    function renderPalaces(data, luuNienData) {
         if (!data || !data.thap_nhi_cung) return;
+        const flow = luuNienData && luuNienData.cac_cung_co_sao ? luuNienData.cac_cung_co_sao : null;
+        const flowMap = {};
+        if (flow) {
+            flow.forEach(f => { flowMap[f.cung] = f.sao_luu; });
+        }
         palacesContainer.innerHTML = data.thap_nhi_cung.map(cung => {
             const chinh = cung.chinh_tinh && cung.chinh_tinh.length > 0
                 ? cung.chinh_tinh.join(', ')
@@ -166,15 +172,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const sat = cung.sat_tinh && cung.sat_tinh.length > 0
                 ? cung.sat_tinh.join(', ')
                 : null;
+            const thanBadge = cung.is_than ? '<span class="than-badge">Thân</span>' : '';
+            const dt = cung.dac_tinh && Object.keys(cung.dac_tinh).length > 0
+                ? Object.entries(cung.dac_tinh).map(([star, val]) => `${star} (${val})`).join(', ')
+                : null;
+            const flowStars = flowMap[cung.ten] || null;
             return `
-                <div class="palace-card">
+                <div class="palace-card ${cung.is_than ? 'palace-than' : ''}">
                     <div class="palace-header">
-                        <span class="palace-name">${cung.ten}</span>
+                        <span class="palace-name">${cung.ten} ${thanBadge}</span>
                         <span class="palace-earthly">${cung.dia_chi}${cung.can_cung ? ' (' + cung.can_cung + ')' : ''}</span>
                     </div>
                     <div class="palace-main-stars">${chinh}</div>
+                    ${dt ? `<div class="palace-section"><span class="palace-section-label">Đặc tính</span><span class="palace-section-val">${dt}</span></div>` : ''}
                     ${phu ? `<div class="palace-section"><span class="palace-section-label">Phụ tinh</span><span class="palace-section-val">${phu}</span></div>` : ''}
                     ${sat ? `<div class="palace-section"><span class="palace-section-label">Sát tinh</span><span class="palace-section-val">${sat}</span></div>` : ''}
+                    ${flowStars ? `<div class="palace-section"><span class="palace-section-label">Lưu niên</span><span class="palace-section-val">${flowStars.join(', ')}</span></div>` : ''}
                 </div>
             `;
         }).join('');
@@ -190,6 +203,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 <pre class="code-block" style="margin-top:8px">${JSON.stringify(data.luu_nien, null, 2)}</pre>
             </div>
         `;
+    }
+
+    function renderDaiHan(data) {
+        if (!data || !data.dai_han || data.dai_han.length === 0) return;
+        const container = document.getElementById('daiHanGrid');
+        if (!container) return;
+        container.innerHTML = data.dai_han.map(dh => `
+            <div class="daihan-item">
+                <span class="daihan-cung">${dh.cung}</span>
+                <span class="daihan-tuoi">${dh.tuoi}</span>
+            </div>
+        `).join('');
     }
 
     function renderPatterns(data) {

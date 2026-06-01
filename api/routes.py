@@ -66,6 +66,7 @@ def interpret_chart(req: ChartRequest):
             "thong_tin_co_ban": data["thong_tin_co_ban"],
             "menh_ban": data["menh_ban"],
             "tu_hoa": data["tu_hoa"],
+            "thap_nhi_cung": data["thap_nhi_cung"],
             "cach_cuc": patterns,
             "ket_hop_sao": star_combos,
             "luan_giai": luu_giai,
@@ -87,6 +88,8 @@ def annual_flow(req: LuuNienRequest):
         return ChartResponse(success=True, data={
             "thong_tin_co_ban": data["thong_tin_co_ban"],
             "menh_ban": data["menh_ban"],
+            "tu_hoa": data["tu_hoa"],
+            "thap_nhi_cung": data["thap_nhi_cung"],
             "cach_cuc": patterns,
             "ket_hop_sao": combos,
             "luu_nien": luu_nien,
@@ -232,6 +235,8 @@ def ai_interpret(req: InterpretRequest):
         return ChartResponse(success=True, data={
             "thong_tin_co_ban": chart_dict["thong_tin_co_ban"],
             "menh_ban": chart_dict["menh_ban"],
+            "tu_hoa": chart_dict["tu_hoa"],
+            "thap_nhi_cung": chart_dict["thap_nhi_cung"],
             "interpretation": result["interpretation"],
             "model": result["model"],
             "cached": result.get("cached", False),

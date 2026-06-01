@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__))))
 from lasotuvi.App import lapDiaBan
 from lasotuvi.DiaBan import diaBan
 from lasotuvi.AmDuong import diaChi, ngayThangNam, ngayThangNamCanChi, timCuc, nguHanh, thienCan
-from .config import NGU_HANH, NGU_HANH_NAME, DIA_CHI, TEN_12_CUNG
+from .config import NGU_HANH, NGU_HANH_NAME, DIA_CHI, TEN_12_CUNG, THIEN_CAN
 
 GIO_MAP = {0: 1, 23: 1, 1: 2, 2: 2, 3: 3, 4: 3, 5: 4, 6: 4,
            7: 5, 8: 5, 9: 6, 10: 6, 11: 7, 12: 7, 13: 8, 14: 8,
@@ -21,7 +21,18 @@ STAR_PHU_TINH = {15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
                   91, 92, 93, 94}
 STAR_SAT_TINH = {51, 52, 53, 54, 55, 56, 95, 96, 97, 98, 99, 100}
 
-TU_HOA_STARS = {1: "Hóa lộc", 2: "Hóa quyền", 3: "Hóa khoa", 4: "Hóa kỵ"}
+TU_HOA_RULES = {
+    "Giáp": {"Lộc": "Liêm trinh", "Quyền": "Phá quân", "Khoa": "Vũ khúc", "Kỵ": "Thái Dương"},
+    "Ất":  {"Lộc": "Thiên cơ",  "Quyền": "Thiên lương", "Khoa": "Tử vi",     "Kỵ": "Thái âm"},
+    "Bính": {"Lộc": "Thiên đồng", "Quyền": "Thiên cơ",  "Khoa": "Văn xương", "Kỵ": "Liêm trinh"},
+    "Đinh": {"Lộc": "Thái âm",   "Quyền": "Thiên đồng", "Khoa": "Thiên cơ",  "Kỵ": "Cự môn"},
+    "Mậu": {"Lộc": "Tham lang",  "Quyền": "Thái Dương", "Khoa": "Hữu bật",   "Kỵ": "Thiên cơ"},
+    "Kỷ":  {"Lộc": "Vũ khúc",    "Quyền": "Tham lang",  "Khoa": "Thiên lương","Kỵ": "Thái âm"},
+    "Canh":{"Lộc": "Thái Dương", "Quyền": "Vũ khúc",    "Khoa": "Thái âm",   "Kỵ": "Thiên đồng"},
+    "Tân": {"Lộc": "Cự môn",     "Quyền": "Thái âm",    "Khoa": "Văn xương", "Kỵ": "Vũ khúc"},
+    "Nhâm":{"Lộc": "Thiên lương","Quyền": "Tử vi",      "Khoa": "Tả phù",    "Kỵ": "Tham lang"},
+    "Quý": {"Lộc": "Phá quân",   "Quyền": "Cự môn",     "Khoa": "Thái âm",   "Kỵ": "Tham lang"},
+}
 
 PALACE_MAP_1BASED = {
     "Mệnh": 1, "Huynh đệ": 12, "Phu thê": 11, "Tử tức": 10,
@@ -68,15 +79,20 @@ class LaSoTuVi:
         self._extract_tu_hoa()
 
     def _extract_palaces(self):
+        DAC_MAP = {"M": "Miếu", "V": "Vượng", "Đ": "Đắc", "H": "Hãm"}
         for i in range(1, 13):
             cung = self._db.thapNhiCung[i]
             cung_chu = getattr(cung, "cungChu", "")
             chinh = []
             phu = []
             sat = []
+            dac_tinh = {}
             for s in cung.cungSao:
                 loai = s.get("saoLoai", 99)
                 ten = s.get("saoTen", "")
+                dt_raw = s.get("saoDacTinh")
+                if dt_raw and dt_raw in DAC_MAP:
+                    dac_tinh[ten] = DAC_MAP[dt_raw]
                 if loai == 1:
                     chinh.append(ten)
                 elif loai in {95}:
@@ -92,21 +108,23 @@ class LaSoTuVi:
                 "chinh_tinh": chinh,
                 "phu_tinh": phu,
                 "sat_tinh": sat,
-                "dac_tinh": {},
+                "dac_tinh": dac_tinh,
                 "isThan": cung.cungThan,
             }
 
     def _extract_tu_hoa(self):
         self.tu_hoa = {"Lộc": "", "Quyền": "", "Khoa": "", "Kỵ": ""}
-        for pos, data in self.palace_data.items():
-            for loai_key, hoa_ten in [("Lộc", "Hóa lộc"), ("Quyền", "Hóa quyền"),
-                                       ("Khoa", "Hóa khoa"), ("Kỵ", "Hóa kỵ")]:
-                if hoa_ten in data["phu_tinh"] or hoa_ten in data["sat_tinh"]:
-                    chinh = [s for s in data["chinh_tinh"] if s]
-                    if chinh:
-                        self.tu_hoa[loai_key] = chinh[0]
-                    else:
-                        self.tu_hoa[loai_key] = hoa_ten
+        rules = TU_HOA_RULES.get(self.can_nam, {})
+        for loai_key in ("Lộc", "Quyền", "Khoa", "Kỵ"):
+            expected = rules.get(loai_key, "")
+            if not expected:
+                continue
+            expected_lower = expected.lower()
+            for pos, data in self.palace_data.items():
+                all_stars = [s.lower() for s in data["chinh_tinh"] + data["phu_tinh"] + data["sat_tinh"]]
+                if expected_lower in all_stars:
+                    self.tu_hoa[loai_key] = expected
+                    break
 
     def _tinh_dac_tinh(self, stars):
         from .config import NATAL_STAR_MATRIX, DAC_TINH_LABEL
@@ -121,6 +139,11 @@ class LaSoTuVi:
         from .can_chi import tinh_can_cung
         return tinh_can_cung(self.can_nam, cung_pos_0based)
 
+    def _tinh_dai_han(self):
+        from .dai_han import tinh_dai_han as tdh
+        can_idx = THIEN_CAN.index(self.can_nam) if self.can_nam in THIEN_CAN else 0
+        return tdh(self.cung_menh_pos - 1, self.cuc_so, self.gioi_tinh, can_idx)
+
     def to_dict(self):
         cung_list = []
         start = self.cung_menh_pos
@@ -133,10 +156,24 @@ class LaSoTuVi:
                 "dia_chi": data["dia_chi"],
                 "so_thu_tu": pos_0based,
                 "can_cung": self._tinh_can_cung(pos_0based),
+                "is_than": data["isThan"],
                 "chinh_tinh": data["chinh_tinh"],
                 "phu_tinh": data["phu_tinh"],
                 "sat_tinh": data["sat_tinh"],
                 "dac_tinh": data["dac_tinh"],
+            })
+
+        dai_han_raw = self._tinh_dai_han()
+        dai_han_list = []
+        for offset, dh in enumerate(dai_han_raw):
+            pos_1based = (start - 1 - offset) % 12 + 1
+            palace = self.palace_data[pos_1based]
+            dai_han_list.append({
+                "cung": palace["ten"],
+                "dia_chi": dh["dia_chi"],
+                "tuoi": dh["tuoi"],
+                "start_age": dh["start_age"],
+                "end_age": dh["end_age"],
             })
 
         return {
@@ -157,5 +194,5 @@ class LaSoTuVi:
             },
             "tu_hoa": self.tu_hoa,
             "thap_nhi_cung": cung_list,
-            "dai_han": [],
+            "dai_han": dai_han_list,
         }
