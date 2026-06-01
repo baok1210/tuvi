@@ -8,3 +8,16 @@ build/
 .planning/
 test_*.py
 start_server.ps1
+check_menh*.py
+debug_*.py
+get_menh_stars.py
+*_result.txt
+*_output.txt
+stars_output.json
+menh_debug.json
+nguyennhan_all.txt
+output.txt
+result.txt
+FEATURE_REPORT.md
+_repos/
+external/
