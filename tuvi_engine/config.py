@@ -136,9 +136,9 @@ TU_HOA = {
     "Đinh": {"Lộc": "Thái Âm", "Quyền": "Thiên Đồng", "Khoa": "Thiên Cơ", "Kỵ": "Cự Môn"},
     "Mậu": {"Lộc": "Tham Lang", "Quyền": "Thái Âm", "Khoa": "Hữu Bật", "Kỵ": "Thiên Cơ"},
     "Kỷ": {"Lộc": "Vũ Khúc", "Quyền": "Tham Lang", "Khoa": "Thiên Lương", "Kỵ": "Văn Khúc"},
-    "Canh": {"Lộc": "Thái Dương", "Quyền": "Vũ Khúc", "Khoa": "Thái Âm", "Kỵ": "Thiên Đồng"},
+    "Canh": {"Lộc": "Thái Dương", "Quyền": "Vũ Khúc", "Khoa": "Thiên Đồng", "Kỵ": "Thái Âm"},
     "Tân": {"Lộc": "Cự Môn", "Quyền": "Thái Dương", "Khoa": "Văn Khúc", "Kỵ": "Văn Xương"},
-    "Nhâm": {"Lộc": "Thiên Lương", "Quyền": "Tử Vi", "Khoa": "Tả Phụ", "Kỵ": "Vũ Khúc"},
+    "Nhâm": {"Lộc": "Thiên Lương", "Quyền": "Tử Vi", "Khoa": "Thiên Phủ", "Kỵ": "Vũ Khúc"},
     "Quý": {"Lộc": "Phá Quân", "Quyền": "Cự Môn", "Khoa": "Thái Âm", "Kỵ": "Tham Lang"},
 }
 

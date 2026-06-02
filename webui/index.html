@@ -65,13 +65,19 @@
                             <input type="number" id="targetYear" name="targetYear" min="2020" max="2100" value="2026">
                         </div>
 
-                        <div id="ai-options" class="field hidden">
-                            <label for="aiModel">Mô hình</label>
-                            <select id="aiModel" name="aiModel">
-                                <option value="gpt-4o-mini">GPT-4o Mini</option>
-                                <option value="gpt-4o">GPT-4o High</option>
-                                <option value="claude-3-5-sonnet-20241022">Claude 3.5</option>
-                            </select>
+                        <div id="ai-options" class="hidden">
+                            <div class="field" style="flex:2">
+                                <label for="apiKey">API Key</label>
+                                <input type="password" id="apiKey" name="apiKey" placeholder="sk-..." style="width:100%">
+                            </div>
+                            <div class="field" style="flex:1">
+                                <label for="aiModel">Mô hình</label>
+                                <select id="aiModel" name="aiModel">
+                                    <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="gpt-4o">GPT-4o</option>
+                                    <option value="claude-3-5-sonnet-20241022">Claude 3.5</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     
@@ -99,6 +105,23 @@
                         <button class="tab-btn" data-tab="analysis">Luận giải</button>
                         <button class="tab-btn" data-tab="json">Dữ liệu thô</button>
                     </div>
+                    <div class="feature-toggles">
+                        <label class="toggle-btn active" data-feature="scoring">
+                            <input type="checkbox" checked> <span>Scoring</span>
+                        </label>
+                        <label class="toggle-btn active" data-feature="patterns">
+                            <input type="checkbox" checked> <span>Cách cục</span>
+                        </label>
+                        <label class="toggle-btn active" data-feature="classical">
+                            <input type="checkbox" checked> <span>Cổ văn</span>
+                        </label>
+                        <label class="toggle-btn active" data-feature="analysis-text">
+                            <input type="checkbox" checked> <span>Luận giải</span>
+                        </label>
+                        <label class="toggle-btn active" data-feature="bacphai">
+                            <input type="checkbox" checked> <span>Bắc Phái TH</span>
+                        </label>
+                    </div>
                 </div>
 
                 <div class="tab-panes">
@@ -121,9 +144,21 @@
                                 <h4>Đại hạn</h4>
                                 <div id="daiHanGrid" class="daihan-grid"></div>
                             </div>
-                            <div class="info-section">
+                            <div class="info-section feature-scoring">
+                                <h4>Scoring hệ thống</h4>
+                                <div id="scoringContent"></div>
+                            </div>
+                            <div class="info-section feature-patterns">
                                 <h4>Cách cục & Kết hợp sao</h4>
                                 <div id="patternsContent"></div>
+                            </div>
+                            <div class="info-section feature-classical">
+                                <h4>Cổ văn trích dẫn</h4>
+                                <div id="classicalContent"></div>
+                            </div>
+                            <div class="info-section feature-bacphai">
+                                <h4>Phân tích Tứ Hóa tầng sâu (Bắc Phái)</h4>
+                                <div id="bacphaiContent"></div>
                             </div>
                         </div>
                     </div>
@@ -153,6 +188,8 @@
             </div>
         </main>
     </div>
+    <script src="tuvi-engine.js"></script>
+    <script src="tuvi-knowledge.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -53,6 +53,8 @@ class InterpretRequest(BaseModel):
     max_tokens: int = Field(4096, ge=256, le=32768, description="Max tokens response")
     use_cache: bool = Field(True, description="Dùng cache nếu có")
     refresh: bool = Field(False, description="Bypass cache")
+    enable_bac_phai: bool = Field(True, description="Kích hoạt phân tích Tứ Hóa tầng sâu Bắc Phái")
+    enable_nam_phai: bool = Field(True, description="Kích hoạt phân tích Tam Hợp tầng sâu Nam Phái")
 
 
 class AIStreamParams(BaseModel):

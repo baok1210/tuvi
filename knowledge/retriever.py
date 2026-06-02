@@ -75,6 +75,54 @@ def _build_index():
     text = f"Sao Nam: {', '.join(bp['sao_nam_sao_nu']['sao_nam'])}. Sao Nữ: {', '.join(bp['sao_nam_sao_nu']['sao_nu'])}. Đặc biệt: {bp['sao_nam_sao_nu']['sao_dac_biet']}."
     KNOWLEDGE_SOURCES.append({"type": "bac_phai", "key": "sao_nam_nu", "text": text})
 
+    from knowledge.luc_ban_trieu import LUC_BAN_TRIEU_STARS, LUC_BAN_TRIEU_QUOTES, LUC_BAN_TRIEU_NAM_MENH
+    for sao, info in LUC_BAN_TRIEU_STARS.items():
+        text = f"[Lục Bân Triệu] {sao}: {info['tinh_chat']}. {info.get('can_cu_ban', '')}"
+        if info.get('ky_ki'):
+            text += f" Kỵ: {info['ky_ki']}."
+        if info.get('hy'):
+            text += f" Hỷ: {info['hy']}."
+        KNOWLEDGE_SOURCES.append({"type": "luc_ban_trieu", "key": f"star_{sao}", "text": text})
+    for q in LUC_BAN_TRIEU_QUOTES:
+        text = f"[Lục Bân Triệu] {q['text']}"
+        KNOWLEDGE_SOURCES.append({"type": "luc_ban_trieu", "key": q["text"][:40], "text": text})
+    for nm in LUC_BAN_TRIEU_NAM_MENH:
+        text = f"[Lục Bân Triệu] {nm['ten']}: {nm['mo_ta']}"
+        KNOWLEDGE_SOURCES.append({"type": "luc_ban_trieu", "key": nm["ten"], "text": text})
+
+    from knowledge.dam_thien_thuyet_dia import LY_PHAT_STAR_PAIRS, LY_PHAT_QUOTES
+    for ten, info in LY_PHAT_STAR_PAIRS.items():
+        text = f"[Đàm thiên thuyết địa - Lý Phật] {ten} tại {info.get('cung', '')}: {info['phan_tich'][:300]}"
+        KNOWLEDGE_SOURCES.append({"type": "dam_thien_thuyet_dia", "key": f"pair_{ten}", "text": text})
+    for q in LY_PHAT_QUOTES:
+        text = f"[Đàm thiên thuyết địa - Lý Phật] {q['text']}"
+        KNOWLEDGE_SOURCES.append({"type": "dam_thien_thuyet_dia", "key": q["text"][:40], "text": text})
+
+    from knowledge.trung_chau_tu_hoa import TRUNG_CHAU_HOA_BANG, TRUNG_CHAU_THAI_CUC_MO_RONG, TRUNG_CHAU_QUOTES, TRUNG_CHAU_LAI_NHAN_CUNG
+    text = f"[Trung Châu Tứ Hóa Phái] Bảng Tứ Hóa: {str(TRUNG_CHAU_HOA_BANG)}"
+    KNOWLEDGE_SOURCES.append({"type": "trung_chau", "key": "hoa_bang", "text": text})
+    text = f"[Trung Châu Tứ Hóa Phái] Lai Nhân Cung: {TRUNG_CHAU_LAI_NHAN_CUNG['mo_ta']}."
+    KNOWLEDGE_SOURCES.append({"type": "trung_chau", "key": "lai_nhan", "text": text})
+    for cap in TRUNG_CHAU_THAI_CUC_MO_RONG["cap_mo_rong"]:
+        text = f"[Trung Châu Tứ Hóa Phái] Thái Cực mở rộng: {cap['tu']} → {cap['la']}. {cap['y_nghia']}."
+        KNOWLEDGE_SOURCES.append({"type": "trung_chau", "key": f"thai_cuc_{cap['tu'][:15]}", "text": text})
+    for q in TRUNG_CHAU_QUOTES:
+        text = f"[Trung Châu Tứ Hóa Phái] {q['text']}"
+        KNOWLEDGE_SOURCES.append({"type": "trung_chau", "key": q["text"][:40], "text": text})
+
+    from knowledge.truong_the_hien import SUY_LUAN_PHI_HOA, TRUONG_THE_HIEN_QUOTES
+    text = f"[Trương Thế Hiền] {SUY_LUAN_PHI_HOA['gioi_thieu']}. Phương pháp: {SUY_LUAN_PHI_HOA['phuong_phap']}."
+    KNOWLEDGE_SOURCES.append({"type": "truong_the_hien", "key": "gioi_thieu", "text": text})
+    for loai, y_nghia in SUY_LUAN_PHI_HOA["cac_loai_phi_hoa"].items():
+        text = f"[Trương Thế Hiền] {loai}: {y_nghia}"
+        KNOWLEDGE_SOURCES.append({"type": "truong_the_hien", "key": f"phi_{loai}", "text": text})
+    for ten, mo_ta in SUY_LUAN_PHI_HOA["chuyen_ky"].items():
+        text = f"[Trương Thế Hiền] Chuyển Kỵ {ten}: {mo_ta}"
+        KNOWLEDGE_SOURCES.append({"type": "truong_the_hien", "key": f"chuyen_ky_{ten}", "text": text})
+    for q in TRUONG_THE_HIEN_QUOTES:
+        text = f"[Trương Thế Hiền] {q['text']}"
+        KNOWLEDGE_SOURCES.append({"type": "truong_the_hien", "key": q["text"][:40], "text": text})
+
     from knowledge.classical.co_tuy_phu import COT_TUY_PHU, THAI_VI_PHU, NU_MENH_PHU, CAC_SAO_PHU_NI_HAI_XIA
 
     for ch in COT_TUY_PHU.get("chapters", []):
@@ -149,6 +197,49 @@ def _build_index():
                     "text": text,
                 })
 
+    from knowledge.tuvitrungchau_rag import TRUNG_CHAU_KNOWLEDGE
+    for entry in TRUNG_CHAU_KNOWLEDGE:
+        text = f"[Trung Châu phái] {entry['text']}"
+        kw = " ".join(entry["keywords"])
+        text += f" Từ khóa: {kw}."
+        KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
+
+    from knowledge.tu_hoa_bac_phai import BAC_PHAI_DATA
+    for entry in BAC_PHAI_DATA:
+        text = f"[Bắc Phái Tứ Hóa từ sách gốc] {entry['text']}"
+        kw = " ".join(entry["keywords"])
+        text += f" Từ khóa: {kw}."
+        KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
+
+    from knowledge.tu_hoa_tuvichanco import TU_HOA_TUVICHANCO_DATA
+    for entry in TU_HOA_TUVICHANCO_DATA:
+        text = f"[Tứ Hóa Bắc Phái từ khóa học] {entry['text']}"
+        kw = " ".join(entry["keywords"])
+        text += f" Từ khóa: {kw}."
+        KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
+
+    import json as _json, os as _os
+
+    _vu_tai_luc_path = _os.path.join(_os.path.dirname(__file__), "nam_phai_vu_tai_luc.json")
+    if _os.path.exists(_vu_tai_luc_path):
+        with open(_vu_tai_luc_path, encoding="utf-8") as _f:
+            NAM_PHAI_VU_TAI_LUC = _json.load(_f)
+        for entry in NAM_PHAI_VU_TAI_LUC:
+            text = f"[Nam Phái - Vũ Tài Lục] {entry['text']}"
+            kw = " ".join(entry["keywords"])
+            text += f" Từ khóa: {kw}."
+            KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
+
+    _tuvinamphai_path = _os.path.join(_os.path.dirname(__file__), "nam_phai_tuvinamphai.json")
+    if _os.path.exists(_tuvinamphai_path):
+        with open(_tuvinamphai_path, encoding="utf-8") as _f:
+            NAM_PHAI_TUVINAMPHAI = _json.load(_f)
+        for entry in NAM_PHAI_TUVINAMPHAI:
+            text = f"[Nam Phái - tuvinamphai.vn] {entry['text']}"
+            kw = " ".join(entry["keywords"])
+            text += f" Từ khóa: {kw}."
+            KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
+
     from knowledge.classical.nihaixia import NI_HAIXIA_QUOTES, NI_HAIXIA_TEACHINGS, TIANJI_MODULES
     for q in NI_HAIXIA_QUOTES:
         text = f"Ni Hải Hạ: {q['viet']} — {q['meaning']}"
@@ -159,8 +250,15 @@ def _build_index():
         KNOWLEDGE_SOURCES.append({"type": "nihaixia", "key": f"module_{mod['id']}", "text": text})
         for ch in mod.get("chapters", []):
             for kp in ch.get("keyPoints", []):
-                t = f"Ni Hải Hạ - {mod.get('name', '')}/{ch['title']}: {kp}"
-                KNOWLEDGE_SOURCES.append({"type": "nihaixia", "key": f"kp_{mod['id']}_{ch.get('id', '')}", "text": t})
+                    t = f"Ni Hải Hạ - {mod.get('name', '')}/{ch['title']}: {kp}"
+                    KNOWLEDGE_SOURCES.append({"type": "nihaixia", "key": f"kp_{mod['id']}_{ch.get('id', '')}", "text": t})
+
+    from knowledge.trung_quoc_tu_vi import TRUNG_QUOC_DATA
+    for entry in TRUNG_QUOC_DATA:
+        text = f"[Trung Quốc Tử Vi] {entry['text']}"
+        kw = " ".join(entry["keywords"])
+        text += f" Từ khóa: {kw}."
+        KNOWLEDGE_SOURCES.append({"type": entry["category"], "key": entry["topic"], "text": text})
 
 
 def _tokenize(text):

@@ -22,6 +22,7 @@ from knowledge.star_combos import phan_tich_to_hop_sao
 from knowledge.prompts import PromptBuilder
 from knowledge.retriever import truy_xuat
 from tuvi_engine.pipeline import Layer2RAG
+from knowledge.scoring import tinh_diem_toan_bo
 
 router = APIRouter(prefix="/api/v1", tags=["Tu Vi"])
 
@@ -35,6 +36,7 @@ def create_chart(req: ChartRequest):
         star_combos = phan_tich_to_hop_sao(data)
         data["cach_cuc"] = patterns
         data["ket_hop_sao"] = star_combos
+        data["diem_so"] = tinh_diem_toan_bo(data.get("thap_nhi_cung", []), data.get("tu_hoa", {}))
         return ChartResponse(success=True, data=data)
     except ValueError as e:
         return ChartResponse(success=False, error=str(e))
@@ -51,6 +53,7 @@ def interpret_chart(req: ChartRequest):
         star_combos = phan_tich_to_hop_sao(data)
         data["cach_cuc"] = patterns
         data["ket_hop_sao"] = star_combos
+        data["diem_so"] = tinh_diem_toan_bo(data.get("thap_nhi_cung", []), data.get("tu_hoa", {}))
 
         giai_doan = giai_doan_toan_bo(data)
         luu_giai = []
@@ -69,6 +72,7 @@ def interpret_chart(req: ChartRequest):
             "thap_nhi_cung": data["thap_nhi_cung"],
             "cach_cuc": patterns,
             "ket_hop_sao": star_combos,
+            "diem_so": data["diem_so"],
             "luan_giai": luu_giai,
         })
     except ValueError as e:
@@ -85,6 +89,7 @@ def annual_flow(req: LuuNienRequest):
         patterns = nhan_dien_cach_cuc(data)
         combos = phan_tich_to_hop_sao(data)
         luu_nien = tinh_luu_nien_cho_laso(data, req.nam_xem)
+        data["diem_so"] = tinh_diem_toan_bo(data.get("thap_nhi_cung", []), data.get("tu_hoa", {}))
         return ChartResponse(success=True, data={
             "thong_tin_co_ban": data["thong_tin_co_ban"],
             "menh_ban": data["menh_ban"],
@@ -92,6 +97,7 @@ def annual_flow(req: LuuNienRequest):
             "thap_nhi_cung": data["thap_nhi_cung"],
             "cach_cuc": patterns,
             "ket_hop_sao": combos,
+            "diem_so": data["diem_so"],
             "luu_nien": luu_nien,
         })
     except Exception as e:
@@ -219,6 +225,19 @@ def ai_interpret(req: InterpretRequest):
         la_so = LaSoTuVi(req.nam, req.thang, req.ngay, req.gio, req.gioi_tinh)
         chart_dict = la_so.to_dict()
 
+        # Add Phi Cung and Xuyến Liên data if Bắc Phái enabled
+        if req.enable_bac_phai:
+            from tuvi_engine.phi_tinh_xuyen_lien import tinh_xuyen_lien
+            from tuvi_engine.pipeline import Layer1Algorithm
+            l1 = Layer1Algorithm()
+            ctx = l1.run(req.nam, req.thang, req.ngay, req.gio, req.gioi_tinh)
+            xl_data = tinh_xuyen_lien(
+                chart_dict.get("thap_nhi_cung", []),
+                chart_dict.get("tu_hoa", {}),
+                ctx.get("phi_cung", []),
+            )
+            chart_dict["xuyen_lien"] = xl_data
+
         rag = Layer2RAG()
         result = rag.interpret(
             chart_dict,
@@ -230,9 +249,12 @@ def ai_interpret(req: InterpretRequest):
             max_tokens=req.max_tokens,
             use_cache=req.use_cache,
             refresh=req.refresh,
+            enable_bac_phai=req.enable_bac_phai,
+            enable_nam_phai=req.enable_nam_phai,
         )
 
-        return ChartResponse(success=True, data={
+        import json
+        response_data = {
             "thong_tin_co_ban": chart_dict["thong_tin_co_ban"],
             "menh_ban": chart_dict["menh_ban"],
             "tu_hoa": chart_dict["tu_hoa"],
@@ -240,7 +262,11 @@ def ai_interpret(req: InterpretRequest):
             "interpretation": result["interpretation"],
             "model": result["model"],
             "cached": result.get("cached", False),
-        })
+        }
+        if req.enable_bac_phai and "xuyen_lien" in chart_dict:
+            response_data["xuyen_lien"] = chart_dict["xuyen_lien"]
+
+        return ChartResponse(success=True, data=response_data)
     except ImportError as e:
         return ChartResponse(success=False, error=f"Thiếu thư viện: {str(e)}. Chạy 'pip install openai anthropic'")
     except Exception as e:

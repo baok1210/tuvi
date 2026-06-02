@@ -26,9 +26,9 @@ def tinh_luu_nien(nam_can, nam_chi):
 
     thien_khoi, thien_viet = 1, 7
     khoi_viet_table = {
-        "Giáp": (1, 7), "Ất": (0, 8), "Bính": (10, 6), "Đinh": (9, 5),
-        "Mậu": (7, 1), "Kỷ": (8, 0), "Canh": (6, 10), "Tân": (5, 9),
-        "Nhâm": (3, 7), "Quý": (4, 8),
+        "Giáp": (1, 7), "Ất": (0, 8), "Bính": (11, 9), "Đinh": (9, 11),
+        "Mậu": (7, 1), "Kỷ": (0, 8), "Canh": (7, 1), "Tân": (6, 2),
+        "Nhâm": (5, 3), "Quý": (3, 5),
     }
     thien_khoi, thien_viet = khoi_viet_table.get(nam_can, (1, 7))
 

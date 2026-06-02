@@ -17,7 +17,7 @@ ZIWEI_TO_TIANFU = {0: 4, 1: 3, 2: 2, 3: 1, 4: 0, 5: 11, 6: 10, 7: 9, 8: 8, 9: 7,
 ZIWEI_OFFSETS = {"Tử Vi": 0, "Thiên Cơ": 11, "Thái Dương": 9, "Vũ Khúc": 8, "Thiên Đồng": 7, "Liêm Trinh": 4}
 TIANFU_OFFSETS = {"Thiên Phủ": 0, "Thái Âm": 1, "Tham Lang": 2, "Cự Môn": 3, "Thiên Tướng": 4, "Thiên Lương": 5, "Thất Sát": 6, "Phá Quân": 10}
 
-LOC_TON_POS = {"Giáp": 2, "Ất": 3, "Bính": 4, "Đinh": 5, "Mậu": 6, "Kỷ": 6, "Canh": 7, "Tân": 8, "Nhâm": 9, "Quý": 10}
+LOC_TON_POS = {"Giáp": 2, "Ất": 3, "Bính": 5, "Đinh": 6, "Mậu": 5, "Kỷ": 6, "Canh": 8, "Tân": 9, "Nhâm": 11, "Quý": 0}
 
 THIEN_MA_POS = {"Tý": 2, "Sửu": 2, "Dần": 8, "Mão": 8, "Thìn": 8, "Tỵ": 11, "Ngọ": 11, "Mùi": 11, "Thân": 5, "Dậu": 5, "Tuất": 5, "Hợi": 2}
 
@@ -77,8 +77,8 @@ def an_van_xuong_khuc(gio_sinh_index):
 
 
 def an_thien_khoi_viet(nam_can):
-    table = {"Giáp": (1, 7), "Ất": (0, 8), "Bính": (10, 6), "Đinh": (9, 5), "Mậu": (7, 1),
-             "Kỷ": (8, 0), "Canh": (6, 10), "Tân": (5, 9), "Nhâm": (3, 7), "Quý": (4, 8)}
+    table = {"Giáp": (1, 7), "Ất": (0, 8), "Bính": (11, 9), "Đinh": (9, 11), "Mậu": (7, 1),
+             "Kỷ": (0, 8), "Canh": (7, 1), "Tân": (6, 2), "Nhâm": (5, 3), "Quý": (3, 5)}
     khoi, viet = table.get(nam_can, (1, 7))
     return {"Thiên Khôi": khoi, "Thiên Việt": viet}
 

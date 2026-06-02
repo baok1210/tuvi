@@ -3,7 +3,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__))))
 from lasotuvi.App import lapDiaBan
 from lasotuvi.DiaBan import diaBan
 from lasotuvi.AmDuong import diaChi, ngayThangNam, ngayThangNamCanChi, timCuc, nguHanh, thienCan
-from .config import NGU_HANH, NGU_HANH_NAME, DIA_CHI, TEN_12_CUNG, THIEN_CAN
+from .config import NGU_HANH, NGU_HANH_NAME, DIA_CHI, TEN_12_CUNG, THIEN_CAN, TU_HOA
 
 GIO_MAP = {0: 1, 23: 1, 1: 2, 2: 2, 3: 3, 4: 3, 5: 4, 6: 4,
            7: 5, 8: 5, 9: 6, 10: 6, 11: 7, 12: 7, 13: 8, 14: 8,
@@ -20,19 +20,6 @@ STAR_PHU_TINH = {15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
                   77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
                   91, 92, 93, 94}
 STAR_SAT_TINH = {51, 52, 53, 54, 55, 56, 95, 96, 97, 98, 99, 100}
-
-TU_HOA_RULES = {
-    "Giáp": {"Lộc": "Liêm trinh", "Quyền": "Phá quân", "Khoa": "Vũ khúc", "Kỵ": "Thái Dương"},
-    "Ất":  {"Lộc": "Thiên cơ",  "Quyền": "Thiên lương", "Khoa": "Tử vi",     "Kỵ": "Thái âm"},
-    "Bính": {"Lộc": "Thiên đồng", "Quyền": "Thiên cơ",  "Khoa": "Văn xương", "Kỵ": "Liêm trinh"},
-    "Đinh": {"Lộc": "Thái âm",   "Quyền": "Thiên đồng", "Khoa": "Thiên cơ",  "Kỵ": "Cự môn"},
-    "Mậu": {"Lộc": "Tham lang",  "Quyền": "Thái Dương", "Khoa": "Hữu bật",   "Kỵ": "Thiên cơ"},
-    "Kỷ":  {"Lộc": "Vũ khúc",    "Quyền": "Tham lang",  "Khoa": "Thiên lương","Kỵ": "Thái âm"},
-    "Canh":{"Lộc": "Thái Dương", "Quyền": "Vũ khúc",    "Khoa": "Thái âm",   "Kỵ": "Thiên đồng"},
-    "Tân": {"Lộc": "Cự môn",     "Quyền": "Thái âm",    "Khoa": "Văn xương", "Kỵ": "Vũ khúc"},
-    "Nhâm":{"Lộc": "Thiên lương","Quyền": "Tử vi",      "Khoa": "Tả phù",    "Kỵ": "Tham lang"},
-    "Quý": {"Lộc": "Phá quân",   "Quyền": "Cự môn",     "Khoa": "Thái âm",   "Kỵ": "Tham lang"},
-}
 
 PALACE_MAP_1BASED = {
     "Mệnh": 1, "Huynh đệ": 12, "Phu thê": 11, "Tử tức": 10,
@@ -114,7 +101,7 @@ class LaSoTuVi:
 
     def _extract_tu_hoa(self):
         self.tu_hoa = {"Lộc": "", "Quyền": "", "Khoa": "", "Kỵ": ""}
-        rules = TU_HOA_RULES.get(self.can_nam, {})
+        rules = TU_HOA.get(self.can_nam, {})
         for loai_key in ("Lộc", "Quyền", "Khoa", "Kỵ"):
             expected = rules.get(loai_key, "")
             if not expected:
