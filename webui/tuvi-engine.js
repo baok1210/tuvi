@@ -182,8 +182,8 @@ function anTuVi(ngaySinh, cucSo) {
   const k = ((cucSo - (ngaySinh % cucSo)) % cucSo + cucSo) % cucSo;
   const q = Math.floor((ngaySinh + k) / cucSo);
   let pos;
-  if (k % 2 === 0) pos = (q + k + 2) % 12;
-  else pos = ((q - k + 2) % 12 + 12) % 12;
+  if (k % 2 === 0) pos = (q + k + 1) % 12;
+  else pos = ((q - k + 1) % 12 + 12) % 12;
   return pos;
 }
 

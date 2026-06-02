@@ -30,9 +30,9 @@ def an_tu_vi(ngay_sinh, cuc_so):
     q = (ngay_sinh + k) // cuc_so
     
     if k % 2 == 0:
-        pos = (q + k + 2) % 12
+        pos = (q + k + 1) % 12
     else:
-        pos = (q - k + 2) % 12
+        pos = (q - k + 1) % 12
         
     return pos
 
