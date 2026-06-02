@@ -239,12 +239,17 @@ function anThienKhoiViet(namCan) {
   return {"Thiên Khôi": khoi, "Thiên Việt": viet};
 }
 
-function anHoaLinh(namChiIndex, gioIndex) {
-  const tableH = {0:3,1:4,2:8,3:9,4:2,5:3,6:7,7:8,8:1,9:2,10:6,11:7};
-  const tableL = {0:9,1:8,2:5,3:4,4:1,5:0,6:9,7:8,8:5,9:4,10:1,11:0};
-  const hoaBase = tableH[namChiIndex] !== undefined ? tableH[namChiIndex] : 3;
-  const linhBase = tableL[namChiIndex] !== undefined ? tableL[namChiIndex] : 9;
-  return {"Hỏa Tinh": (hoaBase + gioIndex) % 12, "Linh Tinh": (linhBase + gioIndex) % 12};
+function anHoaLinh(namChiIndex, gioIndex, namCanIndex, gioiTinh) {
+  const HOA_KHOI = {0:2,1:3,2:1,3:9,4:2,5:3,6:1,7:9,8:2,9:3,10:1,11:9};
+  const LINH_KHOI = {0:10,1:10,2:3,3:10,4:10,5:10,6:3,7:10,8:10,9:10,10:3,11:10};
+  const hoaThuan = (gioiTinh === 'Nam') === (namCanIndex % 2 === 0);
+  const hoaPos = hoaThuan
+    ? (HOA_KHOI[namChiIndex] + gioIndex) % 12
+    : ((HOA_KHOI[namChiIndex] - gioIndex) % 12 + 12) % 12;
+  const linhPos = hoaThuan
+    ? ((LINH_KHOI[namChiIndex] - gioIndex) % 12 + 12) % 12
+    : (LINH_KHOI[namChiIndex] + gioIndex) % 12;
+  return {"Hỏa Tinh": hoaPos, "Linh Tinh": linhPos};
 }
 
 function anDiaKhongKiep(gioIndex) {
@@ -397,7 +402,7 @@ function createChart(nam, thang, ngay, gio, gioiTinh) {
   for (const [ten, pos] of Object.entries(anTaPhuHuuBat(gioIndex))) addStars(pos, [ten], "phu");
   for (const [ten, pos] of Object.entries(anVanXuongKhuc(gioIndex))) addStars(pos, [ten], "phu");
   for (const [ten, pos] of Object.entries(anThienKhoiViet(namCan))) addStars(pos, [ten], "phu");
-  for (const [ten, pos] of Object.entries(anHoaLinh(namChiIndex, gioIndex))) addStars(pos, [ten], "sat");
+  for (const [ten, pos] of Object.entries(anHoaLinh(namChiIndex, gioIndex, namCanIndex, gioiTinh))) addStars(pos, [ten], "sat");
   for (const [ten, pos] of Object.entries(anDiaKhongKiep(gioIndex))) addStars(pos, [ten], "sat");
   for (const [ten, pos] of Object.entries(anThaiTue(namChiIndex))) addStars(pos, [ten], "phu");
   for (const [ten, pos] of Object.entries(anThienKhong(namCanIndex))) addStars(pos, [ten], "sat");

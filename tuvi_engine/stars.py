@@ -83,15 +83,16 @@ def an_thien_khoi_viet(nam_can):
     return {"Thiên Khôi": khoi, "Thiên Việt": viet}
 
 
-def an_hoa_linh(nam_chi_index, gio_sinh_index):
-    table_h = {0: 3, 1: 4, 2: 8, 3: 9, 4: 2, 5: 3, 6: 7, 7: 8, 8: 1, 9: 2, 10: 6, 11: 7}
-    table_l = {0: 9, 1: 8, 2: 5, 3: 4, 4: 1, 5: 0, 6: 9, 7: 8, 8: 5, 9: 4, 10: 1, 11: 0}
-    offset_h = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11}
-    offset_l = {0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11}
-    hoa_base = table_h.get(nam_chi_index, 3)
-    linh_base = table_l.get(nam_chi_index, 9)
-    hoa_pos = (hoa_base + gio_sinh_index) % 12
-    linh_pos = (linh_base + gio_sinh_index) % 12
+def an_hoa_linh(nam_chi_index, gio_sinh_index, nam_can_index, gioi_tinh):
+    HOA_KHOI = {0:2,1:3,2:1,3:9,4:2,5:3,6:1,7:9,8:2,9:3,10:1,11:9}
+    LINH_KHOI = {0:10,1:10,2:3,3:10,4:10,5:10,6:3,7:10,8:10,9:10,10:3,11:10}
+    hoa_thuan = (gioi_tinh == "Nam") == (nam_can_index % 2 == 0)
+    if hoa_thuan:
+        hoa_pos = (HOA_KHOI[nam_chi_index] + gio_sinh_index) % 12
+        linh_pos = (LINH_KHOI[nam_chi_index] - gio_sinh_index) % 12
+    else:
+        hoa_pos = (HOA_KHOI[nam_chi_index] - gio_sinh_index) % 12
+        linh_pos = (LINH_KHOI[nam_chi_index] + gio_sinh_index) % 12
     return {"Hỏa Tinh": hoa_pos, "Linh Tinh": linh_pos}
 
 

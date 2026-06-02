@@ -96,7 +96,7 @@ class LaSoTuVi:
             stars_at_pos.setdefault(pos, {"chinh": [], "phu": [], "sat": []})
             stars_at_pos[pos]["phu"].append(ten)
 
-        hoa_linh = an_hoa_linh(self.nam_chi_index, self.gio_index)
+        hoa_linh = an_hoa_linh(self.nam_chi_index, self.gio_index, self.nam_can_index, self.gioi_tinh)
         for ten, pos in hoa_linh.items():
             stars_at_pos.setdefault(pos, {"chinh": [], "phu": [], "sat": []})
             stars_at_pos[pos]["sat"].append(ten)
